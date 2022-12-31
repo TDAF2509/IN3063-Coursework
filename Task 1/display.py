@@ -1,7 +1,6 @@
 import numpy as np
 
 
-# snippet for bcolors from https://www.codegrepper.com/code-examples/python/python+change+print+color
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
