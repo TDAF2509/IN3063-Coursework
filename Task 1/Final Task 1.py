@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
 """
-Created on Sat Dec 31 14:18:43 2022
-
 @author: TDAF
 """
 
