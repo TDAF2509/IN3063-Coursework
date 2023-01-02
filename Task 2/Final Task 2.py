@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.datasets import mnist
 ((X, y), (X_test, y_test)) = mnist.load_data()
 
-# Shuffle the training dataset
+# Randomise the training dataset order
 keys = np.array(range(X.shape[0]))
 np.random.shuffle(keys)
 X = X[keys]
@@ -173,7 +173,7 @@ class Layer_Dropout:
         # Save input values
         self.inputs = inputs
 
-        # If not in the training mode - return values
+        # If not in the training mode then return values
         if not training:
             self.output = inputs.copy()
             return
@@ -256,20 +256,20 @@ class Loss:
         self.accumulated_sum += np.sum(sample_losses)
         self.accumulated_count += len(sample_losses)
 
-        # If just data loss - return it
+        # If just data loss then return it
         if not include_regularization:
             return data_loss
 
         # Return the data and regularization losses
         return data_loss, self.regularization_loss()
 
-    # Calculates accumulated loss
+    # Calculates the accumulated loss
     def calculate_accumulated(self, *, include_regularization=False):
 
-        # Calculate mean loss
+        # Calculate the mean loss
         data_loss = self.accumulated_sum / self.accumulated_count
 
-        # If just data loss - return it
+        # If just data loss then return it
         if not include_regularization:
             return data_loss
 
@@ -291,19 +291,19 @@ class Loss_CategoricalCrossentropy(Loss):
         # Number of samples in a batch
         samples = len(y_pred)
 
-        # Clip data to prevent division by 0
-        # Clip both sides to not drag mean towards any value
+        # Clip data to prevent division by 0, both sides are clipped in
+        # Order to not drag the mean towards any value
         y_pred_clipped = np.clip(y_pred, 1e-7, 1 - 1e-7)
 
-        # Probabilities for target values -
-        # only if categorical labels
+        # Check the probabilities for target values onl if the 
+        # Categorical labels are true
         if len(y_true.shape) == 1:
             correct_confidences = y_pred_clipped[
                 range(samples),
                 y_true
             ]
 
-        # Mask values - only for one-hot encoded labels
+        # Otherwise mask the values but only for one-hot encoded labels
         elif len(y_true.shape) == 2:
             correct_confidences = np.sum(
                 y_pred_clipped * y_true,
@@ -320,10 +320,10 @@ class Loss_CategoricalCrossentropy(Loss):
         # Number of samples
         samples = len(dvalues)
         # Number of labels in every sample
-        # We'll use the first sample to count them
+        # The first sample is used to count them
         labels = len(dvalues[0])
 
-        # If labels are sparse, turn them into one-hot vector
+        # If the labels are sparse, turn them into one-hot vector
         if len(y_true.shape) == 1:
             y_true = np.eye(labels)[y_true]
 
@@ -336,8 +336,7 @@ class Loss_CategoricalCrossentropy(Loss):
 # Common accuracy class
 class Accuracy:
 
-    # Calculates an accuracy
-    # given predictions and ground truth values
+    # Calculates an accuracy given predictions and ground truth values
     def calculate(self, predictions, y):
 
         # Get comparison results
@@ -420,8 +419,8 @@ class Optimizer_SGD:
     def post_update_params(self):
         self.iterations += 1
 
-# Model class
-class Model:
+# NeuralNetwork class
+class NeuralNetwork:
 
     def __init__(self):
         # Create a list of network objects
@@ -700,27 +699,27 @@ class Model:
 
 
 # Instantiate the model
-model = Model()
+neuralNetwork = NeuralNetwork()
 
 
 # Add layers
-model.add(Layer_Dense(X.shape[1], 128))
-model.add(Activation_ReLU())
-model.add(Layer_Dense(128, 64))
-model.add(Activation_ReLU())
-model.add(Layer_Dense(64, 10))
-model.add(Activation_Softmax())
+neuralNetwork.add(Layer_Dense(X.shape[1], 128))
+neuralNetwork.add(Activation_ReLU())
+neuralNetwork.add(Layer_Dense(128, 64))
+neuralNetwork.add(Activation_ReLU())
+neuralNetwork.add(Layer_Dense(64, 10))
+neuralNetwork.add(Activation_Softmax())
 
 # Set loss, optimizer and accuracy objects
-model.set(
+neuralNetwork.set(
     loss=Loss_CategoricalCrossentropy(),
     optimizer=Optimizer_SGD(decay=1e-3),
     accuracy=Accuracy_Categorical()
 )
 
 # Finalize the model
-model.finalize()
+neuralNetwork.finalize()
 
 # Train the model
-model.train(X, y, validation_data=(X_test, y_test),
+neuralNetwork.train(X, y, validation_data=(X_test, y_test),
             epochs=10, batch_size=128, print_every=100)
